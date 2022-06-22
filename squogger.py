@@ -1,15 +1,17 @@
 import sys
 import json
 import datetime
+import math
 
 
 def log_squat(squat_time, current_log):
     date = str(datetime.date.today())
     try:
         existing_date = current_log[date]
-        existing_sessions = existing_date['sessions']
-        existing_sessions.append(squat_time)
-        existing_date['total_minutes'] = existing_date['total_minutes'] + squat_time
+        sessions = existing_date['sessions']
+        sessions.append(squat_time)
+        updated_total_time = math.fsum(sessions)
+        existing_date['total_minutes'] = updated_total_time
     except KeyError:
         new_date_log = { 'total_minutes': squat_time, 'sessions': [ squat_time ]}
         current_log[date] = new_date_log
@@ -18,7 +20,6 @@ def log_squat(squat_time, current_log):
 
 
 def update_squat_log(current_log):
-    # print(current_log)
     with open('squat.json', 'w') as squat_json:
         new_json = json.dumps(current_log, indent=2)
         squat_json.write(new_json)
@@ -28,7 +29,7 @@ def parse_squat_time(squat_time):
     time_list = squat_time.split(':')
     minutes = int(time_list[0])
     seconds = int(time_list[1])
-    return minutes + round(seconds / 60, 2)
+    return round(minutes + (seconds / 60), 2)
 
 
 def init_squat_json():
